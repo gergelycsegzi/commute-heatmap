@@ -1,0 +1,33 @@
+<!DOCTYPE html>  
+<html>  
+  <head>  
+    <title>Commute Time Heatmap</title>  
+    <style>  
+      #map {  
+        height: 100%;  
+      }  
+      html,  
+      body {  
+        height: 100%;  
+        margin: 0;  
+        padding: 0;  
+      }  
+    </style>  
+  </head>  
+  <body>  
+    <div id="map"></div>  
+    <script>  
+      fetch('/api-key')  
+        .then((response) => response.json())  
+        .then((data) => {  
+          const apiKey = data.apiKey;  
+          const script = document.createElement('script');  
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=visualization&callback=initMap`;  
+          script.async = true;  
+          script.defer = true;  
+          document.body.appendChild(script);  
+        });  
+    </script>  
+    <script src="script.js"></script>  
+  </body>  
+</html>  
