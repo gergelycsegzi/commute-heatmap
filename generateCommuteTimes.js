@@ -16,8 +16,8 @@ const tileResolution = 100
 // otherwise you will have overlapping tiles
 const destRawCoords = [
   // taken from Google Maps
-  [51.5086911,-0.1303222], // picadilly circus
-  [51.5075985,-0.1042273] // tate modern
+  [51.4967146,-0.1827168], // Natural History museum
+  [51.5035647,-0.0942226] // Borough Market
 ]
 const destinations = destRawCoords.map((rawCoord) => ({ lat: rawCoord[0], lng: rawCoord[1] }));
 
@@ -80,7 +80,8 @@ function generateGridPoints(polygonCoords, resolution) {
     }  
   }  
   
-  return gridPoints;  
+  console.log(`Grid points to compare: `, gridPoints.length);  
+  return gridPoints;
 }  
 
 const gridPoints = generateGridPoints(polygonCoords, tileResolution);  
@@ -97,7 +98,8 @@ async function calculateCommuteTimes(gridPoints, destinations) {
     const savedApiResponse = loadApiResponseFromFile(key);  
   
     if (savedApiResponse) {  
-      const commuteTimes = extractCommuteTimes(savedApiResponse);  
+      const commuteTimes = extractCommuteTimes(savedApiResponse);
+      console.log(`Cache hit for point: `, key);  
       processCommuteTimes(point, commuteTimes);  
     } else {  
       const request = {  

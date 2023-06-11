@@ -1,5 +1,6 @@
 function init() {  
-  const tileResolution = 100; 
+  const tileResolution = 100;
+  const MAX_COMMUTE_TIME_CUTOFF = 25 * 60;
   let map;
 
   async function fetchCommuteTimes() {  
@@ -38,7 +39,7 @@ function init() {
         const averageCommuteTime = commuteTimesForPoint.reduce((a, b) => a + b) / commuteTimesForPoint.length;
         
         // ignore anything above 30 minutes
-        if (averageCommuteTime < 1800) {
+        if (averageCommuteTime <= MAX_COMMUTE_TIME_CUTOFF) {
           addColoredTile(new google.maps.LatLng(pointLatLng[0], pointLatLng[1]), averageCommuteTime, tileResolution);
         }
       }
