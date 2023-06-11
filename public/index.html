@@ -22,12 +22,13 @@
         .then((data) => {  
           const apiKey = data.apiKey;  
           const script = document.createElement('script');  
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=visualization,geometry&callback=initMap`;  
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=visualization&callback=init`;  
           script.async = true;  
           script.defer = true;  
           document.body.appendChild(script);  
         });  
-    </script>  
-    <script src="script.js"></script>  
+    </script>
+    <script src="constants.js"></script>
+    <script src="script.js"></script>
   </body>  
 </html>  
