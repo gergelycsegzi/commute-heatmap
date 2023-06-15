@@ -1,4 +1,5 @@
 require('dotenv').config();
+const {TILE_RESOLUTION, DESTINATIONS, POLYGON_COORDS} = require('./public/constants.js'); 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';  
 
 const e = require('express');
@@ -9,43 +10,6 @@ const googleMapsClient = require('@google/maps').createClient({
   key: apiKey,  
   Promise: Promise  
 });
-
-const tileResolution = 100
-
-// Note that if you change the destinations or the polygon you should delete the cached commute times
-// otherwise you will have overlapping tiles
-const destRawCoords = [
-  // taken from Google Maps
-  [51.4967146,-0.1827168], // Natural History museum
-  [51.5035647,-0.0942226] // Borough Market
-]
-const destinations = destRawCoords.map((rawCoord) => ({ lat: rawCoord[0], lng: rawCoord[1] }));
-
-const polygonRawCoords = [
-  // generated with https://geojson.io/
-  // NOTE: the order of the coordinates is generated differently than Google Maps
-  [
-    -0.16317578466919258,
-    51.5229519226049
-  ],
-  [
-    -0.16317578466919258,
-    51.478555677678855
-  ],
-  [
-    -0.07575795835097665,
-    51.478555677678855
-  ],
-  [
-    -0.07575795835097665,
-    51.5229519226049
-  ],
-  [
-    -0.16317578466919258,
-    51.5229519226049
-  ]
-];
-const polygonCoords = polygonRawCoords.map((rawCoord) => ({ lat: rawCoord[1], lng: rawCoord[0] }));
 
 function generateGridPoints(polygonCoords, resolution) {  
   const bounds = polygonCoords.reduce(  
@@ -84,7 +48,7 @@ function generateGridPoints(polygonCoords, resolution) {
   return gridPoints;
 }  
 
-const gridPoints = generateGridPoints(polygonCoords, tileResolution);  
+const gridPoints = generateGridPoints(POLYGON_COORDS, TILE_RESOLUTION);  
 
 const ELEMENTS_LIMIT = 1000; // Maximum number of elements per second  
 const REQUEST_DELAY = 1000; // Delay between requests in milliseconds  
@@ -181,7 +145,7 @@ function loadApiResponseFromFile(key) {
 
 (async () => {  
   try {  
-    await calculateCommuteTimes(gridPoints, destinations);  
+    await calculateCommuteTimes(gridPoints, DESTINATIONS);  
     console.log('Commute times calculation completed.');  
   } catch (error) {  
     console.error('An error occurred while calculating commute times:', error);  

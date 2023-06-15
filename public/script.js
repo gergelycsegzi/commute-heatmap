@@ -1,6 +1,25 @@
-function init() {  
-  const tileResolution = 100;
+function init() {
+  // import { TILE_RESOLUTION, DESTINATIONS, POLYGON_COORDS } from './constants.js';
+  const TILE_RESOLUTION = window.TILE_RESOLUTION;
+  const DESTINATIONS = window.DESTINATIONS;
+  const POLYGON_COORDS = window.POLYGON_COORDS;  
+
   const MAX_COMMUTE_TIME_CUTOFF = 25 * 60;
+        
+  const TIME_TO_COLOR_MAP = [  
+    { maxTime: 60, color: '#00FF00', label: '<= 1 minute' },  
+    { maxTime: 120, color: '#33FF33', label: '<= 2 minutes' },  
+    { maxTime: 180, color: '#66FF66', label: '<= 3 minutes' },  
+    { maxTime: 240, color: '#99FF99', label: '<= 4 minutes' },  
+    { maxTime: 300, color: '#CCFFCC', label: '<= 5 minutes' },  
+    { maxTime: 600, color: '#FFFF00', label: '<= 10 minutes' },  
+    { maxTime: 900, color: '#FFCC00', label: '<= 15 minutes' },  
+    { maxTime: 1200, color: '#FFA500', label: '<= 20 minutes' },  
+    { maxTime: 1500, color: '#FF7F50', label: '<= 25 minutes' },  
+    { maxTime: 1800, color: '#FF6347', label: '<= 30 minutes' },  
+    { maxTime: Infinity, color: '#FF0000', label: '> 30 minutes' },  
+  ];  
+
   let map;
 
   async function fetchCommuteTimes() {  
@@ -15,11 +34,52 @@ function init() {
       center: { lat: 51.5074, lng: -0.1278 }, // Center the map on London  
     });
 
+    addDestinations();
+    addPolygon();
+    createLegend();
+
     (async () => {  
       const commuteTimes = await fetchCommuteTimes();  
-      addHeatMap(commuteTimes, tileResolution);  
+      addHeatMap(commuteTimes, TILE_RESOLUTION);  
     })();  
-  } 
+  }
+    
+  function addDestinations() {  
+    DESTINATIONS.forEach((destination) => {  
+      const marker = new google.maps.Marker({  
+        position: destination,  
+        map: map,  
+      });  
+    });  
+  }  
+  
+  function addPolygon() {  
+    const polygon = new google.maps.Polygon({  
+      paths: POLYGON_COORDS,  
+      strokeColor: '#FF0000', // Border color  
+      strokeOpacity: 0.8, // Border opacity  
+      strokeWeight: 2, // Border weight  
+      fillColor: '#FFFFFF', // Fill color (set it to the same as the background color for transparency)  
+      fillOpacity: 0, // Fill opacity (set it to 0 for transparency)  
+      map: map,  
+    });  
+  }
+  
+  function createLegend() {  
+    const legend = document.createElement('div');  
+    legend.id = 'legend';
+    legend.style.backgroundColor = 'rgba(255, 255, 255, 0.7)'; 
+    legend.style.padding = '10px';
+  
+    TIME_TO_COLOR_MAP.forEach((entry) => {  
+      const legendItem = document.createElement('div');  
+      legendItem.innerHTML = `<span style="background-color: ${entry.color}; display: inline-block; width: 20px; height: 20px; margin-right: 5px;"></span> ${entry.label}`;  
+      legend.appendChild(legendItem);  
+    });  
+  
+    document.body.appendChild(legend);  
+    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);  
+  }
     
   function addHeatMap(commuteTimes, tileResolution) {  
     const heatmapData = [];  
@@ -63,34 +123,11 @@ function init() {
         west: point.lng(),  
       },  
     });  
-  }  
-    
+  }
+  
   function getColorByCommuteTime(time) {  
-    // Customize this function to return a color based on the commute time  
-    if (time <= 60) {  
-      return "#00FF00"; // Green for <= 1 minute  
-    } else if (time <= 120) {  
-      return "#33FF33"; // Light green for <= 2 minutes  
-    } else if (time <= 180) {  
-      return "#66FF66"; // Lighter green for <= 3 minutes  
-    } else if (time <= 240) {  
-      return "#99FF99"; // Even lighter green for <= 4 minutes  
-    } else if (time <= 300) {  
-      return "#CCFFCC"; // Very light green for <= 5 minutes  
-    } else if (time <= 600) {  
-      return "#FFFF00"; // Yellow for <= 10 minutes  
-    } else if (time <= 900) {  
-      return "#FFCC00"; // Light orange for <= 15 minutes  
-    } else if (time <= 1200) {  
-      return "#FFA500"; // Orange for <= 20 minutes  
-    } else if (time <= 1500) {  
-      return "#FF7F50"; // Coral for <= 25 minutes  
-    } else if (time <= 1800) {  
-      return "#FF6347"; // Tomato for <= 30 minutes  
-    } else {  
-      return "#FF0000"; // Red for > 30 minutes  
-    }  
-  }    
+    return TIME_TO_COLOR_MAP.find((entry) => time <= entry.maxTime).color;  
+  }
 
   (async () => {  
     initMap();
